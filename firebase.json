@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"sampark-apk","appId":"1:469358326071:android:860d9e01835cbe1dc9eab2","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"sampark-apk","configurations":{"android":"1:469358326071:android:860d9e01835cbe1dc9eab2","ios":"1:469358326071:ios:62838116d541eac7c9eab2"}}}}}}
