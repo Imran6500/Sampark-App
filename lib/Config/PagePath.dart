@@ -17,10 +17,12 @@ var pagePath = [
       name: "/homePage",
       page: () => const HomePage(),
       transition: Transition.rightToLeft),
-  GetPage(
-      name: "/chatPage",
-      page: () => const ChatPage(),
-      transition: Transition.rightToLeft),
+  // GetPage(
+  // name: "/chatPage",
+  // page: () => const ChatPage(),
+  // transition: Transition.rightToLeft
+  // ),
+
   GetPage(
       name: "/profilePage",
       page: () => const ProfilePage(),

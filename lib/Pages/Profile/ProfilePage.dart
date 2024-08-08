@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sampark/Controller/AuthController.dart';
 import 'package:sampark/Controller/ImagePicker.dart';
 import 'package:sampark/Controller/ProfileController.dart';
 import 'Widgets/ProfilePageBody.dart';
@@ -14,6 +15,7 @@ class ProfilePage extends StatelessWidget {
     RxString imagePath = "".obs;
 
     ProfileController profileController = Get.put(ProfileController());
+    AuthController authController = Get.put(AuthController());
 
     ImagePickerController imagePickerController =
         Get.put(ImagePickerController());
@@ -32,6 +34,13 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Profile"),
+        actions: [
+          IconButton(
+              onPressed: () {
+                authController.Logout();
+              },
+              icon: const Icon(Icons.logout))
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),

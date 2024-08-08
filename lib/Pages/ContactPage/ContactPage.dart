@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_rx/get_rx.dart';
+import 'package:sampark/Controller/ChatController.dart';
+import 'package:sampark/Controller/ContactController.dart';
+import 'package:sampark/Pages/Chat/ChatPage.dart';
 
 import '../../Config/Image.dart';
 import '../HomePage/Widget/ChatTile.dart';
@@ -11,19 +14,29 @@ class ContactPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    RxBool isSearching = false.obs;
+    RxBool isSearchEnable = false.obs;
+
+    ContactController contactController = Get.put(ContactController());
+
+    Chatcontroller chatController = Get.put(Chatcontroller());
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Select Contact"),
         actions: [
-          IconButton(
-            onPressed: () {
-              isSearching.value = true;
-              print(isSearching.value);
-            },
-            icon: const Icon(Icons.search),
-          )
+          Obx(() => isSearchEnable.value
+              ? IconButton(
+                  onPressed: () {
+                    isSearchEnable.value = false;
+                  },
+                  icon: const Icon(Icons.close),
+                )
+              : IconButton(
+                  onPressed: () {
+                    isSearchEnable.value = true;
+                  },
+                  icon: const Icon(Icons.search),
+                ))
         ],
       ),
       body: Padding(
@@ -31,7 +44,7 @@ class ContactPage extends StatelessWidget {
         child: ListView(
           children: [
             Obx(
-              () => isSearching.value
+              () => isSearchEnable.value
                   ? Container(
                       padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
@@ -44,7 +57,7 @@ class ContactPage extends StatelessWidget {
                               textInputAction: TextInputAction.search,
                               onSubmitted: (value) {
                                 print(value);
-                                isSearching.value = false;
+                                isSearchEnable.value = false;
                               },
                               decoration: const InputDecoration(
                                 hintText: "Search Contact",
@@ -55,7 +68,7 @@ class ContactPage extends StatelessWidget {
                         ],
                       ),
                     )
-                  : SizedBox(),
+                  : const SizedBox(),
             ),
             const SizedBox(height: 10),
             NewContactTile(
@@ -82,82 +95,25 @@ class ContactPage extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            const Column(
-              children: [
-                ChatTile(
-                  imageUrl: AssetsImage.femaleUser,
-                  userName: "Imran",
-                  lastChat: "Can't talk now",
-                  lastTime: "08:33 AM",
-                ),
-                ChatTile(
-                  imageUrl: AssetsImage.maleUser,
-                  userName: "Raja",
-                  lastChat: "Let's talk",
-                  lastTime: "10:33 AM",
-                ),
-                ChatTile(
-                  imageUrl: AssetsImage.femaleUser,
-                  userName: "Adnan",
-                  lastChat: " talk now",
-                  lastTime: "09:33 AM",
-                ),
-                ChatTile(
-                  imageUrl: AssetsImage.femaleUser,
-                  userName: "Alina",
-                  lastChat: "Can't talk ",
-                  lastTime: "08:33 PM",
-                ),
-                ChatTile(
-                  imageUrl: AssetsImage.femaleUser,
-                  userName: "Imran",
-                  lastChat: "Can't talk now",
-                  lastTime: "08:33 AM",
-                ),
-                ChatTile(
-                  imageUrl: AssetsImage.maleUser,
-                  userName: "Raja",
-                  lastChat: "Let's talk",
-                  lastTime: "10:33 AM",
-                ),
-                ChatTile(
-                  imageUrl: AssetsImage.femaleUser,
-                  userName: "Adnan",
-                  lastChat: " talk now",
-                  lastTime: "09:33 AM",
-                ),
-                ChatTile(
-                  imageUrl: AssetsImage.femaleUser,
-                  userName: "Alina",
-                  lastChat: "Can't talk ",
-                  lastTime: "08:33 PM",
-                ),
-                ChatTile(
-                  imageUrl: AssetsImage.femaleUser,
-                  userName: "Imran",
-                  lastChat: "Can't talk now",
-                  lastTime: "08:33 AM",
-                ),
-                ChatTile(
-                  imageUrl: AssetsImage.maleUser,
-                  userName: "Raja",
-                  lastChat: "Let's talk",
-                  lastTime: "10:33 AM",
-                ),
-                ChatTile(
-                  imageUrl: AssetsImage.femaleUser,
-                  userName: "Adnan",
-                  lastChat: " talk now",
-                  lastTime: "09:33 AM",
-                ),
-                ChatTile(
-                  imageUrl: AssetsImage.femaleUser,
-                  userName: "Alina",
-                  lastChat: "Can't talk ",
-                  lastTime: "08:33 PM",
-                ),
-              ],
-            )
+            Obx(() => Column(
+                  children: contactController.userList
+                      .map(
+                        (e) => InkWell(
+                          onTap: () {
+                            // Get.toNamed("/chatPage");
+                            Get.to(ChatPage(userModel: e));
+                          },
+                          child: ChatTile(
+                            imageUrl: e.profileImage ??
+                                AssetsImage.defaultProfileImage,
+                            userName: e.name ?? "User",
+                            lastChat: e.about ?? "Hey there!",
+                            lastTime: "",
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ))
           ],
         ),
       ),

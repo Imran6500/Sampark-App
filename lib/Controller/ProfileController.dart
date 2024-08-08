@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
+import 'package:sampark/Controller/AuthController.dart';
 import 'package:sampark/Model/UserModel.dart';
 
 class ProfileController extends GetxController {
@@ -43,13 +44,17 @@ class ProfileController extends GetxController {
       final updatedUser = UserModel(
         name: name,
         about: about,
-        profileImage: imageLink,
+        id: auth.currentUser!.uid,
+        email: auth.currentUser!.email,
+        profileImage:
+            imageUrl.isEmpty ? currentUser.value.profileImage : imageLink,
         phoneNumber: number,
       );
 
       await db.collection("users").doc(auth.currentUser!.uid).set(
             updatedUser.toJson(),
           );
+      await getUserDetails();
     } catch (e) {
       print(e);
     }

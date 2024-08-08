@@ -3,12 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sampark/Config/PagePath.dart';
 import 'package:sampark/Config/Theme.dart';
-import 'package:sampark/Pages/Auth/AuthPage.dart';
-import 'package:sampark/Pages/Auth/Widget/LoginForm.dart';
-import 'package:sampark/Pages/HomePage/HomePage.dart';
+import 'package:sampark/Pages/Profile/ProfilePage.dart';
 import 'package:sampark/Pages/SplashPage/SplashPage.dart';
-import 'package:sampark/Pages/WelcomePage.dart/WelcomePage.dart';
-
 import 'firebase_options.dart';
 
 void main() async {

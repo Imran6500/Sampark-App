@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+
+import 'package:sampark/Controller/ChatController.dart';
 import 'package:sampark/Pages/Chat/Widgets/ChatBubble.dart';
+
 import '../../Config/Image.dart';
+import '../../Model/UserModel.dart';
 
 class ChatPage extends StatelessWidget {
-  const ChatPage({super.key});
+  final UserModel userModel;
+  const ChatPage({
+    super.key,
+    required this.userModel,
+  });
   @override
   Widget build(BuildContext context) {
+    Chatcontroller chatcontroller = Get.put(Chatcontroller());
+    TextEditingController messageController = TextEditingController();
+
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
@@ -26,7 +37,7 @@ class ChatPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Imran Hashmi",
+                  userModel.name ?? "User",
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Text(
@@ -73,11 +84,15 @@ class ChatPage extends StatelessWidget {
             const SizedBox(
               width: 10,
             ),
-            const Expanded(
-                child: TextField(
-              decoration: InputDecoration(
-                  filled: false, hintText: "Type Message ....."),
-            )),
+            Expanded(
+              child: TextField(
+                controller: messageController,
+                decoration: const InputDecoration(
+                  filled: false,
+                  hintText: "Type Message .....",
+                ),
+              ),
+            ),
             SvgPicture.asset(
               AssetsImage.chatGalarySvg,
               width: 25,
@@ -85,11 +100,20 @@ class ChatPage extends StatelessWidget {
             const SizedBox(
               width: 10,
             ),
-            SizedBox(
-              height: 30,
-              width: 30,
-              child: SvgPicture.asset(
-                AssetsImage.chatSendSvg,
+            InkWell(
+              onTap: () {
+                if (messageController.text.isNotEmpty) {
+                  chatcontroller.sendMessage(
+                      userModel.id!, messageController.text);
+                  messageController.clear();
+                }
+              },
+              child: SizedBox(
+                height: 30,
+                width: 30,
+                child: SvgPicture.asset(
+                  AssetsImage.chatSendSvg,
+                ),
               ),
             ),
           ],
