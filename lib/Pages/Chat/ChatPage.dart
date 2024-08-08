@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import 'package:sampark/Controller/ChatController.dart';
+import 'package:sampark/Controller/ProfileController.dart';
 import 'package:sampark/Pages/Chat/Widgets/ChatBubble.dart';
 
 import '../../Config/Image.dart';
@@ -18,6 +21,8 @@ class ChatPage extends StatelessWidget {
   Widget build(BuildContext context) {
     Chatcontroller chatcontroller = Get.put(Chatcontroller());
     TextEditingController messageController = TextEditingController();
+
+    ProfileController profileController = Get.put(ProfileController());
 
     return Scaffold(
       appBar: AppBar(
@@ -120,32 +125,46 @@ class ChatPage extends StatelessWidget {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: ListView(
-          children: const [
-            ChatBubble(
-                message: "Hii how are you?",
-                isComming: true,
-                time: "09:10 AM",
-                status: "read",
-                imageUrl:
-                    "https://i.ytimg.com/vi/RaqPIoJSTtI/maxresdefault.jpg"),
-            ChatBubble(
-                message: "Hii how are you?",
-                isComming: true,
-                time: "09:10 AM",
-                status: "read",
-                imageUrl: ""),
-            ChatBubble(
-                message: "Hii how are you?",
-                isComming: false,
-                time: "09:10 AM",
-                status: "read",
-                imageUrl:
-                    "https://i.ytimg.com/vi/RaqPIoJSTtI/maxresdefault.jpg")
-          ],
-        ),
-      ),
+          padding:
+              const EdgeInsets.only(bottom: 75, left: 10, top: 10, right: 10),
+          child: StreamBuilder(
+              stream: chatcontroller.getMessages(userModel.id!),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text("Error: ${snapshot.error}"),
+                  );
+                }
+                if (snapshot.data == null) {
+                  return const Center(
+                    child: Text("No Message"),
+                  );
+                } else {
+                  return ListView.builder(
+                      reverse: true,
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        DateTime timestamp =
+                            DateTime.parse(snapshot.data![index].timestamp!);
+                        String formattedTime =
+                            DateFormat('hh:mm a').format(timestamp);
+                        return ChatBubble(
+                          message:
+                              snapshot.data![index].message ?? "Hiii there",
+                          isComming: snapshot.data![index].receiverId ==
+                              profileController.currentUser.value.id,
+                          time: formattedTime,
+                          status: "read",
+                          imageUrl: snapshot.data![index].imageUrl ?? "",
+                        );
+                      });
+                }
+              })),
     );
   }
 }
