@@ -1,12 +1,19 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+
 import 'package:sampark/Config/Image.dart';
 import 'package:sampark/Controller/AuthController.dart';
+import 'package:sampark/Model/UserModel.dart';
 import 'package:sampark/Pages/UserProfile/Widgets/userInfo.dart';
 
 class UserProfilePage extends StatelessWidget {
-  const UserProfilePage({super.key});
+  final UserModel userModel;
+  const UserProfilePage({
+    Key? key,
+    required this.userModel,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +34,12 @@ class UserProfilePage extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         child: Column(
           children: [
-            const UserInfo(),
+            UserInfo(
+              profileImage:
+                  userModel.profileImage ?? AssetsImage.defaultProfileImage,
+              userEmail: userModel.email ?? "",
+              userName: userModel.name ?? "User",
+            ),
             const Spacer(),
             ElevatedButton(
                 onPressed: () {

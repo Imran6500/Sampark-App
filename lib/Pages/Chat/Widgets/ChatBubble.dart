@@ -1,7 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:sampark/Config/Image.dart';
+import 'package:sampark/Controller/ChatController.dart';
 
 class ChatBubble extends StatelessWidget {
   final String message;
@@ -20,6 +23,7 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Chatcontroller chatcontroller = Get.put(Chatcontroller());
     return Column(
       crossAxisAlignment:
           isComming ? CrossAxisAlignment.start : CrossAxisAlignment.end,
@@ -51,15 +55,27 @@ class ChatBubble extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(imageUrl)),
-                      const SizedBox(
-                        height: 5,
+                        borderRadius: BorderRadius.circular(10),
+                        child: CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                        ),
                       ),
-                      Text(
-                        message,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      )
+                      message.isNotEmpty
+                          ? const SizedBox(
+                              height: 5,
+                            )
+                          : const SizedBox(),
+                      message.isNotEmpty
+                          ? Text(
+                              message,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            )
+                          : const SizedBox()
                     ],
                   )),
         const SizedBox(

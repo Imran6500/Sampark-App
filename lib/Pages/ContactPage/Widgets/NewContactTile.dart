@@ -16,6 +16,8 @@ class NewContactTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       onTap: () => ontap,
       child: Container(
         padding: const EdgeInsets.all(10),

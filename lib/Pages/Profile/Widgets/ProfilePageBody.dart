@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -46,48 +47,64 @@ class ProfilePageBody extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: [
-                    Obx(() => isEdit.value
-                        ? InkWell(
-                            onTap: () async {
-                              imagePath.value = await imagePickerController
-                                  .pickImageFromGallery();
-                            },
-                            child: Container(
+                    Obx(
+                      () => isEdit.value
+                          ? InkWell(
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                imagePath.value = await imagePickerController
+                                    .pickImageFromGallery();
+                              },
+                              child: Container(
+                                height: 200,
+                                width: 200,
+                                decoration: BoxDecoration(
+                                    color:
+                                        Theme.of(context).colorScheme.surface,
+                                    borderRadius: BorderRadius.circular(100)),
+                                child: imagePath.value.isEmpty
+                                    ? const Icon(Icons.add)
+                                    : ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                        child: Image.file(
+                                          File(imagePath.value),
+                                          fit: BoxFit.cover,
+                                        )),
+                              ))
+                          : Container(
                               height: 200,
                               width: 200,
                               decoration: BoxDecoration(
                                   color: Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(100)),
-                              child: imagePath.value.isEmpty
-                                  ? const Icon(Icons.add)
+                              child: profileController
+                                              .currentUser.value.profileImage ==
+                                          null ||
+                                      profileController
+                                              .currentUser.value.profileImage ==
+                                          ""
+                                  ? const Icon(Icons.image)
                                   : ClipRRect(
                                       borderRadius: BorderRadius.circular(100),
-                                      child: Image.file(
-                                        File(imagePath.value),
+                                      child: CachedNetworkImage(
+                                        imageUrl: profileController
+                                            .currentUser.value.profileImage!,
                                         fit: BoxFit.cover,
-                                      )),
-                            ))
-                        : Container(
-                            height: 200,
-                            width: 200,
-                            decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surface,
-                                borderRadius: BorderRadius.circular(100)),
-                            child: profileController
-                                            .currentUser.value.profileImage ==
-                                        null ||
-                                    profileController
-                                            .currentUser.value.profileImage ==
-                                        ""
-                                ? const Icon(Icons.image)
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: Image.network(
-                                      profileController
-                                          .currentUser.value.profileImage!,
-                                      fit: BoxFit.cover,
-                                    )),
-                          )),
+                                        placeholder: (context, url) =>
+                                            const CircularProgressIndicator(),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(Icons.error),
+                                      ),
+                                    ),
+                            ),
+                    ),
+                    // Image.network(
+                    // profileController
+                    //     .currentUser.value.profileImage!,
+                    // fit: BoxFit.cover,
+
                     const SizedBox(
                       height: 10,
                     ),

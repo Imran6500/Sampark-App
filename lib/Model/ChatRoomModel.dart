@@ -1,8 +1,12 @@
+import 'package:sampark/Model/ChatModel.dart';
+
+import 'UserModel.dart';
+
 class ChatRoomModel {
   String? id;
-  Receiver? sender;
-  Receiver? receiver;
-  List<dynamic>? messages;
+  UserModel? sender;
+  UserModel? receiver;
+  List<ChatModel>? messages;
   int? unReadMessNo;
   String? lastMessage;
   String? lastMessageTimestamp;
@@ -23,10 +27,16 @@ class ChatRoomModel {
       id = json['id'];
     }
     if (json['sender'] is Map) {
-      sender = json['sender'];
+      sender =
+          json['sender'] == null ? null : UserModel.fromJson(json["sender"]);
     }
     if (json['receiver'] is Map) {
-      receiver = json['receiver'];
+      receiver = json['receiver'] == null
+          ? null
+          : UserModel.fromJson(json["receiver"]);
+    }
+    if (json['messages'] is List) {
+      messages = json['messages'] ?? [];
     }
     if (json['unReadMessNo'] is int) {
       unReadMessNo = json['unReadMessNo'];
@@ -58,28 +68,6 @@ class ChatRoomModel {
     data['lastMessage'] = lastMessage;
     data['lastMessageTimestamp'] = lastMessageTimestamp;
     data['timestamp'] = timestamp;
-    return data;
-  }
-}
-
-class Sender {
-  Sender();
-
-  Sender.fromJson(Map<String, dynamic> json) {}
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    return data;
-  }
-}
-
-class Receiver {
-  Receiver();
-
-  Receiver.fromJson(Map<String, dynamic> json) {}
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
     return data;
   }
 }

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:sampark/Controller/ChatController.dart';
 import 'package:sampark/Controller/ContactController.dart';
+import 'package:sampark/Controller/ProfileController.dart';
 import 'package:sampark/Pages/Chat/ChatPage.dart';
 
 import '../../Config/Image.dart';
@@ -19,6 +20,8 @@ class ContactPage extends StatelessWidget {
     ContactController contactController = Get.put(ContactController());
 
     Chatcontroller chatController = Get.put(Chatcontroller());
+
+    ProfileController profileController = Get.put(ProfileController());
 
     return Scaffold(
       appBar: AppBar(
@@ -99,16 +102,21 @@ class ContactPage extends StatelessWidget {
                   children: contactController.userList
                       .map(
                         (e) => InkWell(
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
                           onTap: () {
                             // Get.toNamed("/chatPage");
-                            Get.to(ChatPage(userModel: e));
+                            Get.to(() => ChatPage(userModel: e));
                           },
                           child: ChatTile(
                             imageUrl: e.profileImage ??
                                 AssetsImage.defaultProfileImage,
                             userName: e.name ?? "User",
                             lastChat: e.about ?? "Hey there!",
-                            lastTime: "",
+                            lastTime: e.email ==
+                                    profileController.currentUser.value.email
+                                ? "You"
+                                : "",
                           ),
                         ),
                       )

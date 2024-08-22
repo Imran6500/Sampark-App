@@ -1,15 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
 import 'package:sampark/Controller/ChatController.dart';
 import 'package:sampark/Controller/ProfileController.dart';
-import 'package:sampark/Pages/Chat/Widgets/ChatBubble.dart';
-
-import '../../Config/Image.dart';
+import 'package:sampark/Pages/Chat/Widgets/TypeMessage.dart';
+import 'package:sampark/Pages/UserProfile/UserProfilePage.dart';
 import '../../Model/UserModel.dart';
+import 'Widgets/ChatBubble.dart';
 
 class ChatPage extends StatelessWidget {
   final UserModel userModel;
@@ -20,38 +20,53 @@ class ChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Chatcontroller chatcontroller = Get.put(Chatcontroller());
-    TextEditingController messageController = TextEditingController();
-
     ProfileController profileController = Get.put(ProfileController());
 
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Image.asset(
-              AssetsImage.maleUser,
-              height: 40,
-              width: 40,
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  userModel.name ?? "User",
-                  style: Theme.of(context).textTheme.bodyLarge,
+        title: InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: () {
+            Get.to(UserProfilePage(userModel: userModel));
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                height: 45,
+                width: 45,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: CachedNetworkImage(
+                    imageUrl: profileController.currentUser.value.profileImage!,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
+                  ),
                 ),
-                Text(
-                  "Online",
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    userModel.name ?? "User",
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  Text(
+                    "Online",
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
         leading: IconButton(
           onPressed: () {
@@ -73,98 +88,88 @@ class ChatPage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-        margin: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(100),
-            color: Theme.of(context).colorScheme.primaryContainer),
-        child: Row(
+      body: Padding(
+        padding:
+            const EdgeInsets.only(bottom: 10, left: 10, top: 10, right: 10),
+        child: Column(
           children: [
-            SvgPicture.asset(
-              AssetsImage.chatMicSvg,
-              width: 25,
-            ),
-            const SizedBox(
-              width: 10,
-            ),
             Expanded(
-              child: TextField(
-                controller: messageController,
-                decoration: const InputDecoration(
-                  filled: false,
-                  hintText: "Type Message .....",
+              child: Stack(children: [
+                StreamBuilder(
+                  stream: chatcontroller.getMessages(userModel.id!),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text("Error: ${snapshot.error}"),
+                      );
+                    }
+                    if (snapshot.data == null) {
+                      return const Center(
+                        child: Text("No Message"),
+                      );
+                    } else {
+                      return ListView.builder(
+                          reverse: true,
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            DateTime timestamp = DateTime.parse(
+                                snapshot.data![index].timestamp!);
+                            String formattedTime =
+                                DateFormat('hh:mm a').format(timestamp);
+                            return ChatBubble(
+                              message:
+                                  snapshot.data![index].message ?? "Hiii there",
+                              isComming: snapshot.data![index].receiverId ==
+                                  profileController.currentUser.value.id,
+                              time: formattedTime,
+                              status: "read",
+                              imageUrl: snapshot.data![index].imageUrl ?? "",
+                            );
+                          });
+                    }
+                  },
                 ),
-              ),
+                Obx(() => chatcontroller.selectedImagePath.value != ""
+                    ? Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Stack(children: [
+                          Container(
+                            decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    image: FileImage(
+                                      File(chatcontroller
+                                          .selectedImagePath.value),
+                                    ),
+                                    fit: BoxFit.contain),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                borderRadius: BorderRadius.circular(15)),
+                            height: 500,
+                          ),
+                          Positioned(
+                              right: 0,
+                              child: IconButton(
+                                  onPressed: () {
+                                    chatcontroller.selectedImagePath.value = "";
+                                  },
+                                  icon: const Icon(Icons.close)))
+                        ]),
+                      )
+                    : Container()),
+              ]),
             ),
-            SvgPicture.asset(
-              AssetsImage.chatGalarySvg,
-              width: 25,
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-            InkWell(
-              onTap: () {
-                if (messageController.text.isNotEmpty) {
-                  chatcontroller.sendMessage(
-                      userModel.id!, messageController.text);
-                  messageController.clear();
-                }
-              },
-              child: SizedBox(
-                height: 30,
-                width: 30,
-                child: SvgPicture.asset(
-                  AssetsImage.chatSendSvg,
-                ),
-              ),
-            ),
+            Typemessage(userModel: userModel),
           ],
         ),
       ),
-      body: Padding(
-          padding:
-              const EdgeInsets.only(bottom: 75, left: 10, top: 10, right: 10),
-          child: StreamBuilder(
-              stream: chatcontroller.getMessages(userModel.id!),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text("Error: ${snapshot.error}"),
-                  );
-                }
-                if (snapshot.data == null) {
-                  return const Center(
-                    child: Text("No Message"),
-                  );
-                } else {
-                  return ListView.builder(
-                      reverse: true,
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (context, index) {
-                        DateTime timestamp =
-                            DateTime.parse(snapshot.data![index].timestamp!);
-                        String formattedTime =
-                            DateFormat('hh:mm a').format(timestamp);
-                        return ChatBubble(
-                          message:
-                              snapshot.data![index].message ?? "Hiii there",
-                          isComming: snapshot.data![index].receiverId ==
-                              profileController.currentUser.value.id,
-                          time: formattedTime,
-                          status: "read",
-                          imageUrl: snapshot.data![index].imageUrl ?? "",
-                        );
-                      });
-                }
-              })),
     );
   }
 }

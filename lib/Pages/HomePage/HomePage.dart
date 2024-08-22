@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:get/get.dart';
 import 'package:sampark/Config/Image.dart';
 import 'package:sampark/Config/Strings.dart';
+import 'package:sampark/Controller/ContactController.dart';
 import 'package:sampark/Controller/ImagePicker.dart';
 import 'package:sampark/Controller/ProfileController.dart';
 import 'package:sampark/Pages/HomePage/Widget/ChatList.dart';
@@ -24,6 +25,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     ProfileController profileController = Get.put(ProfileController());
 
+    ContactController contactController = Get.put(ContactController());
+
     return Scaffold(
       appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
@@ -39,7 +42,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: () {
-                // imagePickerController.pickImageFromGallery();
+                contactController.getChatRoomList();
               },
             ),
             IconButton(

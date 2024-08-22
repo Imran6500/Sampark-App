@@ -31,4 +31,8 @@ var pagePath = [
       name: "/contactPage",
       page: () => const ContactPage(),
       transition: Transition.rightToLeft),
+  // GetPage(
+  //     name: "/userProfilePage",
+  //     page: () => const UserProfilePage(userModel: ,),
+  //     transition: Transition.rightToLeft),
 ];
